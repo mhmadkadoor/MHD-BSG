@@ -1,17 +1,33 @@
 {
   "strengths": [
-    "Özet:\nAraç tarafındaki sokette iletken malzeme standarda uygun değildir (bakır yerine demir).",
+    "Enerjinin anlamlı bir kısmı ısı olarak\nkaybedilir; güvenlik politikası akımı düşürür veya keser.",
     "İstasyon nominal akım sınırıyla (örn.",
-    "- IEC/SAE bağlantı standardları, konnektör sıcaklık yükselmesi ve iletken malzeme gereksinimleri\nüzerinden güvenlik ve performans sınırları tanımlar."
-  ],
-  "weaknesses": [
-    "Log Örneği:\n2025-11-01T09:32:10Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 228V | AC_I: 28.5A |\nT_conn: 86.3C | dTdt: 6.2C/min | Event: High contact resistance suspected; derate applied\n2025-11-01T09:33:05Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 226V | AC_I: 10.0A |\nT_conn: 92.1C | dTdt: 4.9C/min | Action: Contactor open; StopTransaction reason=HighTemperature"
-  ],
-  "opportunities": [
+    "- IEC/SAE bağlantı standardları, konnektör sıcaklık yükselmesi ve iletken malzeme gereksinimleri\nüzerinden güvenlik ve performans sınırları tanımlar.",
+    "2) Konnektör sıcaklık sensörlerinin kalibrasyonu ve eşiklerin gözden geçirilmesi; kademeli akım düşürme\npolitikası.",
     "3) Tekrarlayan araçlarda lockout veya akım limit “whitelist/blacklist” politikası."
   ],
+  "weaknesses": [
+    "Anomali:\nAraç şarj soketinde bakır yerine demir kullanımı nedeniyle yüksek temas direnci oluşur; konnektör/pinler\nhızla ısınır ve enerji ısıya dönüşerek boşa gider.",
+    "Senaryo Başlığı:\nMalzeme uygunsuzluğu kaynaklı yüksek temas direnci → konnektör aşırı ısınması ve verimsizlik.",
+    "Özet:\nAraç tarafındaki sokette iletken malzeme standarda uygun değildir (bakır yerine demir).",
+    "Bu durum temas\ndirencini artırır, I2R kayıpları yükselir.",
+    "Şarj başlar gibi görünse de konnektör/pin sıcaklığı hızla artar, hat\ngeriliminde sarkma ve beklenenden düşük şarj gücü görülür.",
+    "Anomali Oluşumu:\nAraç soketindeki demir parça nedeniyle temas direnci artar.",
+    "Akım geçişiyle birlikte I2R kaybı hızla ısı\nüretir; konnektör/pin sıcaklığı yükselir, güç verimi düşer, faz geriliminde hafif düşüm görülür.",
+    "Algılama Mantığı:\n- Konnektör/pin sıcaklığında beklenenden hızlı artış (dT/dt yüksek) veya sıcaklık eşiklerinin aşılması.",
+    "- Aynı akımda olağandışı gerilim sarkması ve beklenenden düşük şarj gücü.",
+    "Kaynaklara Dayalı Açıklama:\n- Temas direnci artışı, akımın karesiyle orantılı ısı üretir (I2R kaybı); uygunsuz malzeme/korozyon bu\ndirenci yükseltir ve konnektörlerde sıcaklık artışına yol açar.",
+    "- Termal model çalışmalarında bağlantı noktalarındaki küçük direnç artışlarının dahi kayıpları ve sıcaklık\nzirvelerini belirgin şekilde yükselttiği gösterilmiştir.",
+    "Öneriler:\n1) Araç soketi ve istasyon konnektöründe malzeme uygunluğu ve korozyon kontrolü; pin yüzeylerinin\nmuayenesi/değişimi."
+  ],
+  "opportunities": [
+    "Başlangıç:\nKullanıcı aracı bağlar, kimlik doğrulama yapılır, şarj oturumu başlar.",
+    "- Kullanıcı bilgilendirilir; teknik ekibe bakım/inceleme bildirimi oluşturulur.",
+    "4) Bakım sonrası doğrulama şarjı ve termal profil kaydı."
+  ],
   "threats": [
-    "- Kritik eşik aşılırsa kontaktörler açılır, oturum güvenli şekilde durdurulur; konnektör izole edilir ve geçici\n“Unavailable” durumuna alınır."
+    "- Kritik eşik aşılırsa kontaktörler açılır, oturum güvenli şekilde durdurulur; konnektör izole edilir ve geçici\n“Unavailable” durumuna alınır.",
+    "Log Örneği:\n2025-11-01T09:32:10Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 228V | AC_I: 28.5A |\nT_conn: 86.3C | dTdt: 6.2C/min | Event: High contact resistance suspected; derate applied\n2025-11-01T09:33:05Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 226V | AC_I: 10.0A |\nT_conn: 92.1C | dTdt: 4.9C/min | Action: Contactor open; StopTransaction reason=HighTemperature"
   ],
   "metrics": {
     "temperatures": [

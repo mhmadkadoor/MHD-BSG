@@ -1,28 +1,26 @@
-# EV connector contact-resistance anomaly simulator
+# EV konnektör temas direnci anomali simülatörü
 
-This small Python simulator models an EV charging session where the vehicle-side
-connector has increased contact resistance (for example, iron used instead of
-copper). It demonstrates how I2R losses produce rapid heating at the connector,
-how the station can derate current stepwise, and how the session is stopped if
-critical temperature thresholds are exceeded.
+Bu küçük Python simülatörü, araç tarafı konnektöründe artan temas direnci
+(örneğin bakır yerine demir kullanımı) durumunu modeller. Model I2R kayıplarının
+konnektörde hızlı ısınmaya yol açtığını, istasyonun akımı kademeli olarak
+azaltabileceğini ve kritik sıcaklık aşıldığında oturumu durdurabileceğini gösterir.
 
-Files added
-- `sim/ev_charging_sim.py`: main simulator. Run with Python 3.8+.
+Dosyalar
+- `sim/ev_charging_sim.py`: ana simülatör. Python 3.8+ ile çalışır.
 
-Quick run
+Hızlı çalışma
 
-Open a PowerShell terminal in the repository root and run:
+PowerShell'de proje kökünden çalıştırın:
 
 ```powershell
 python -m sim.ev_charging_sim --scenario iron --duration-min 20
 ```
 
-Notes
-- The script prints logs to stdout and writes `sim/ev_simulation.log` with the
-  same lines. The model is simplified and tuned for demonstration rather than
-  precise thermal/EM simulation. Tweak contact resistance and thermal params in
-  `build_scenario()` to experiment.
+Notlar
+- Script logları hem konsola yazdırır hem de `sim/ev_simulation.log` dosyasına kaydeder.
+- Model gösterim amaçlı basitleştirilmiştir; daha gerçekçi analizler için
+  termal/elektriksel parametreleri `build_scenario()` içinde ayarlayabilirsiniz.
 
-Suggested next steps
-- Add small unit tests validating derate and stop behavior.
-- Add plotting of temperature vs time for post-run analysis.
+Öneriler / Sonraki adımlar
+- Derating ve durdurma davranışını doğrulayan küçük birim testleri ekleyin.
+- Çalışma sonrası sıcaklık-zaman grafiği için basit bir çizim (matplotlib) ekleyin.

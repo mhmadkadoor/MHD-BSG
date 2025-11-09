@@ -1,13 +1,14 @@
-"""Simple SWOT analyzer for textual reports.
+"""Metin raporları için basit SWOT analizörü.
 
-This script performs a lightweight, rule-based SWOT analysis by splitting
-input text into sentences, matching keywords, scoring sentences per SWOT
-category, and extracting numeric metrics (temperatures, currents, voltages).
+Bu betik, metni cümlelere bölerek, anahtar kelimelerle eşleştirerek,
+her SWOT kategorisine puan verip cümleleri sınıflandıran ve sayısal
+metrikleri (sıcaklıklar, akımlar, gerilimler) çıkaran hafif, kural
+tabanlı bir analiz yapar.
 
-Usage:
+Kullanım:
     python -m sim.swot_analyzer --input-file sim/sample_report.txt --output-json sim/swot_output_example.json
 
-The implementation is intentionally dependency-free so it works offline.
+Bu uygulama dışa bağımlılık gerektirmez ve çevrimdışı çalışır.
 """
 from __future__ import annotations
 
@@ -34,57 +35,57 @@ class SWOTResult:
 
 class SWOTAnalyzer:
     def __init__(self) -> None:
-        # keyword dictionaries (lowercase)
+        # anahtar kelime sözlükleri (küçük harfli eşleşme için)
         self.keywords = {
             "strengths": [
-                "authentication",
+                "kimlik doğrulama",
                 "nominal",
-                "derate",
-                "safety",
-                "policy",
-                "standard",
-                "calibration",
-                "monitor",
+                "akım azalt",
+                "güvenlik",
+                "politika",
+                "standart",
+                "kalibrasyon",
+                "izleme",
             ],
             "weaknesses": [
-                "iron",
-                "inappropriate",
-                "high contact resistance",
-                "overheat",
-                "temperature",
-                "loss",
-                "inefficien",
-                "sag",
-                "corrosion",
-                "suspect",
+                "demir",
+                "uygunsuz",
+                "yüksek temas direnci",
+                "aşırı ısınma",
+                "sıcaklık",
+                "kayıp",
+                "verim",
+                "sarkma",
+                "korozyon",
+                "şüphe",
             ],
             "opportunities": [
-                "sensor",
-                "maintenance",
-                "calibration",
-                "upgrade",
-                "verify",
-                "validation",
-                "whitelist",
-                "blacklist",
+                "sensör",
+                "bakım",
+                "kalibrasyon",
+                "güncelleme",
+                "doğrula",
+                "doğrulama",
+                "beyaz liste",
+                "kara liste",
                 "test",
-                "training",
+                "eğitim",
             ],
             "threats": [
-                "critical",
-                "fire",
-                "damage",
-                "shutdown",
-                "hazard",
-                "unavailable",
-                "lockout",
+                "kritik",
+                "yangın",
+                "zarar",
+                "kapanma",
+                "tehlike",
+                "kullanılamaz",
+                "kilitlenme",
                 "stoptransaction",
-                "hightemperature",
+                "yüksek sıcaklık",
             ],
         }
 
     def split_sentences(self, text: str) -> List[str]:
-        # naive splitter keeping original trimming
+        # basit cümle ayırıcı (kırılma karakterlerine göre)
         parts = [s.strip() for s in SENT_SPLIT_RE.split(text) if s.strip()]
         # further split very long lines by periods if needed
         sentences: List[str] = []
@@ -106,13 +107,13 @@ class SWOTAnalyzer:
 
     def extract_metrics(self, text: str) -> Dict[str, List[str]]:
         metrics: Dict[str, List[str]] = defaultdict(list)
-        # temperatures like 86.3C or 86.3 C or 86C
+        # sıcaklık örnekleri: 86.3C veya 86.3 C veya 86C
         for m in re.findall(r"(\d{1,3}(?:\.\d+)?)[ ]?°?C\b", text, flags=re.IGNORECASE):
             metrics["temperatures"].append(f"{m}C")
         # currents like 28.5A or 32 A
         for m in re.findall(r"(\d{1,3}(?:\.\d+)?)[ ]?A\b", text, flags=re.IGNORECASE):
             metrics["currents"].append(f"{m}A")
-        # voltages like 230V
+        # gerilim örnekleri: 230V
         for m in re.findall(r"(\d{1,4}(?:\.\d+)?)[ ]?V\b", text, flags=re.IGNORECASE):
             metrics["voltages"].append(f"{m}V")
         return metrics
@@ -151,23 +152,23 @@ def pretty_print(result: SWOTResult) -> None:
     def print_block(title: str, items: List[str]) -> None:
         print(f"\n{title}:\n")
         if not items:
-            print("  - (none detected)")
+            print("  - (yok)")
         for s in items:
             print(f"  - {s}")
 
-    print_block("Strengths", result.strengths)
-    print_block("Weaknesses", result.weaknesses)
-    print_block("Opportunities", result.opportunities)
-    print_block("Threats", result.threats)
-    print("\nExtracted metrics:")
+    print_block("Güçlü Yönler", result.strengths)
+    print_block("Zayıf Yönler", result.weaknesses)
+    print_block("Fırsatlar", result.opportunities)
+    print_block("Tehditler", result.threats)
+    print("\nÇıkarılan metrikler:")
     if not result.metrics:
-        print("  - (none)")
+        print("  - (yok)")
     for k, vals in result.metrics.items():
         print(f"  {k}: {', '.join(vals)}")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Simple SWOT analyzer for reports")
+    parser = argparse.ArgumentParser(description="Basit SWOT analizörü (raporlara yönelik)")
     parser.add_argument("--input-file", type=str, required=True)
     parser.add_argument("--output-json", type=str, default=None)
     args = parser.parse_args()
@@ -183,7 +184,7 @@ def main() -> None:
     if args.output_json:
         out = Path(args.output_json)
         out.write_text(json.dumps(asdict(result), ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"\nWrote JSON output to {out}")
+        print(f"\nJSON çıktısı yazıldı: {out}")
 
 
 if __name__ == "__main__":
