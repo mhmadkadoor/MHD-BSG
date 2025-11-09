@@ -1,0 +1,5 @@
+2025-11-01T09:32:10Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 228.0V | AC_I: 28.5A | T_conn: 86.3C | dTdt: 6.2C/min | Event: High contact resistance suspected; derate applied
+2025-11-01T09:33:05Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 226.0V | AC_I: 10.0A | T_conn: 92.1C | dTdt: 4.9C/min | Action: Contactor open; StopTransaction reason=HighTemperature
+
+-- Example produced by `sim/ev_charging_sim.py` (tuned values). The script
+produces more frequent 'PeriodicStatus' lines during a run.

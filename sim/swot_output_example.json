@@ -1,0 +1,34 @@
+{
+  "strengths": [
+    "Özet:\nAraç tarafındaki sokette iletken malzeme standarda uygun değildir (bakır yerine demir).",
+    "İstasyon nominal akım sınırıyla (örn.",
+    "- IEC/SAE bağlantı standardları, konnektör sıcaklık yükselmesi ve iletken malzeme gereksinimleri\nüzerinden güvenlik ve performans sınırları tanımlar."
+  ],
+  "weaknesses": [
+    "Log Örneği:\n2025-11-01T09:32:10Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 228V | AC_I: 28.5A |\nT_conn: 86.3C | dTdt: 6.2C/min | Event: High contact resistance suspected; derate applied\n2025-11-01T09:33:05Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 226V | AC_I: 10.0A |\nT_conn: 92.1C | dTdt: 4.9C/min | Action: Contactor open; StopTransaction reason=HighTemperature"
+  ],
+  "opportunities": [
+    "3) Tekrarlayan araçlarda lockout veya akım limit “whitelist/blacklist” politikası."
+  ],
+  "threats": [
+    "- Kritik eşik aşılırsa kontaktörler açılır, oturum güvenli şekilde durdurulur; konnektör izole edilir ve geçici\n“Unavailable” durumuna alınır."
+  ],
+  "metrics": {
+    "temperatures": [
+      "86.3C",
+      "6.2C",
+      "92.1C",
+      "4.9C"
+    ],
+    "currents": [
+      "32A",
+      "10A",
+      "28.5A",
+      "10.0A"
+    ],
+    "voltages": [
+      "228V",
+      "226V"
+    ]
+  }
+}

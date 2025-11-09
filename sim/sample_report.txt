@@ -1,0 +1,47 @@
+Rapor: Elektrikli Araç Şarj Anomali Senaryosu
+
+Anomali:
+Araç şarj soketinde bakır yerine demir kullanımı nedeniyle yüksek temas direnci oluşur; konnektör/pinler
+hızla ısınır ve enerji ısıya dönüşerek boşa gider.
+Senaryo Başlığı:
+Malzeme uygunsuzluğu kaynaklı yüksek temas direnci → konnektör aşırı ısınması ve verimsizlik.
+Özet:
+Araç tarafındaki sokette iletken malzeme standarda uygun değildir (bakır yerine demir). Bu durum temas
+direncini artırır, I2R kayıpları yükselir. Şarj başlar gibi görünse de konnektör/pin sıcaklığı hızla artar, hat
+geriliminde sarkma ve beklenenden düşük şarj gücü görülür. Enerjinin anlamlı bir kısmı ısı olarak
+kaybedilir; güvenlik politikası akımı düşürür veya keser.
+1. Başlangıç:
+Kullanıcı aracı bağlar, kimlik doğrulama yapılır, şarj oturumu başlar. İstasyon nominal akım sınırıyla (örn.
+32 A) çalışmaya başlar.
+2. Anomali Oluşumu:
+Araç soketindeki demir parça nedeniyle temas direnci artar. Akım geçişiyle birlikte I2R kaybı hızla ısı
+üretir; konnektör/pin sıcaklığı yükselir, güç verimi düşer, faz geriliminde hafif düşüm görülür.
+3. Algılama Mantığı:
+- Konnektör/pin sıcaklığında beklenenden hızlı artış (dT/dt yüksek) veya sıcaklık eşiklerinin aşılması.
+- Aynı akımda olağandışı gerilim sarkması ve beklenenden düşük şarj gücü.
+- İstasyon akımı azalttığında bile sıcaklığın düşmemesi (temas direncinin kalıcı yüksek olması göstergesi).
+4. Karar ve Tepki:
+- Uyarı eşiğinde akım kademeli düşürülür (örn. 32→16→10 A).
+- Kritik eşik aşılırsa kontaktörler açılır, oturum güvenli şekilde durdurulur; konnektör izole edilir ve geçici
+“Unavailable” durumuna alınır.
+- Kullanıcı bilgilendirilir; teknik ekibe bakım/inceleme bildirimi oluşturulur.
+5. Log Örneği:
+2025-11-01T09:32:10Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 228V | AC_I: 28.5A |
+T_conn: 86.3C | dTdt: 6.2C/min | Event: High contact resistance suspected; derate applied
+2025-11-01T09:33:05Z | StationID: ST-123 | UserID: U-987 | Conn: 1 | AC_V: 226V | AC_I: 10.0A |
+T_conn: 92.1C | dTdt: 4.9C/min | Action: Contactor open; StopTransaction reason=HighTemperature
+
+6. Kaynaklara Dayalı Açıklama:
+- Temas direnci artışı, akımın karesiyle orantılı ısı üretir (I2R kaybı); uygunsuz malzeme/korozyon bu
+direnci yükseltir ve konnektörlerde sıcaklık artışına yol açar.
+- IEC/SAE bağlantı standardları, konnektör sıcaklık yükselmesi ve iletken malzeme gereksinimleri
+üzerinden güvenlik ve performans sınırları tanımlar.
+- Termal model çalışmalarında bağlantı noktalarındaki küçük direnç artışlarının dahi kayıpları ve sıcaklık
+zirvelerini belirgin şekilde yükselttiği gösterilmiştir.
+7. Öneriler:
+1) Araç soketi ve istasyon konnektöründe malzeme uygunluğu ve korozyon kontrolü; pin yüzeylerinin
+muayenesi/değişimi.
+2) Konnektör sıcaklık sensörlerinin kalibrasyonu ve eşiklerin gözden geçirilmesi; kademeli akım düşürme
+politikası.
+3) Tekrarlayan araçlarda lockout veya akım limit “whitelist/blacklist” politikası.
+4) Bakım sonrası doğrulama şarjı ve termal profil kaydı.
