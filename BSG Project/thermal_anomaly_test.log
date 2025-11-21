@@ -1,0 +1,30 @@
+2025-11-21 23:14:10,099 - src.simulator.main - INFO - Initializing simulator components...
+2025-11-21 23:14:10,100 - src.simulator.main - INFO - CAN bus simulator initialized
+2025-11-21 23:14:10,101 - src.simulator.main - INFO - OCPP server and client initialized
+2025-11-21 23:14:10,101 - src.simulator.main - INFO - V2G communicator initialized
+2025-11-21 23:14:10,102 - src.simulator.main - INFO - Anomaly injector initialized
+2025-11-21 23:14:10,102 - src.simulator.main - INFO - Starting EV Charging Simulator: EV Charging Simulator
+2025-11-21 23:14:10,103 - src.can_bus.simulator - INFO - CAN bus simulator started on vcan0
+2025-11-21 23:14:10,103 - src.ocpp.protocol - INFO - OCPP 1.6 server starting on port 8000
+2025-11-21 23:14:10,104 - src.ocpp.protocol - INFO - Connecting to OCPP server at ws://localhost:8000
+2025-11-21 23:14:10,104 - src.ocpp.protocol - INFO - BootNotification sent
+2025-11-21 23:14:10,105 - src.anomalies.injector - INFO - Anomaly injected: thermal_runaway_0 (HIGH)
+2025-11-21 23:14:10,105 - src.simulator.main - INFO - Starting charging session (duration: 60.0s)
+2025-11-21 23:14:10,106 - src.simulator.main - INFO - Starting EV Charging Simulator: EV Charging Simulator
+2025-11-21 23:14:10,106 - src.can_bus.simulator - INFO - CAN bus simulator started on vcan0
+2025-11-21 23:14:10,106 - src.ocpp.protocol - INFO - OCPP 1.6 server starting on port 8000
+2025-11-21 23:14:10,107 - src.ocpp.protocol - INFO - Connecting to OCPP server at ws://localhost:8000
+2025-11-21 23:14:10,107 - src.ocpp.protocol - INFO - BootNotification sent
+2025-11-21 23:14:10,108 - src.simulator.main - INFO - Simulating connection phase...
+2025-11-21 23:14:10,108 - src.v2g.communicator - INFO - V2G Discovery Request received
+2025-11-21 23:14:10,108 - src.ocpp.protocol - INFO - BootNotification sent
+2025-11-21 23:14:11,119 - src.simulator.main - INFO - Simulating charging phase (36.0s)...
+2025-11-21 23:14:47,392 - src.anomalies.injector - INFO - Anomaly injected: thermal_runaway_1 (MEDIUM)
+2025-11-21 23:14:47,392 - src.simulator.main - INFO - Simulating charging phase (24.0s)...
+2025-11-21 23:15:11,591 - src.simulator.main - INFO - Simulating disconnection phase...
+2025-11-21 23:15:11,592 - src.ocpp.protocol - INFO - Transaction stopped: None
+2025-11-21 23:15:11,592 - src.v2g.communicator - INFO - V2G session stopped: None
+2025-11-21 23:15:12,604 - src.simulator.main - INFO - Stopping EV Charging Simulator
+2025-11-21 23:15:12,605 - src.can_bus.simulator - INFO - CAN bus simulator stopped
+2025-11-21 23:15:12,605 - src.ocpp.protocol - INFO - OCPP server stopped
+2025-11-21 23:15:12,606 - src.ocpp.protocol - INFO - Disconnected from OCPP server

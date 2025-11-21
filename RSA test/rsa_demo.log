@@ -1,0 +1,28 @@
+2025-11-22 00:05:13,874 [INFO] === RSA DEMO STARTED ===
+2025-11-22 00:05:13,875 [INFO] --- Step 1: Key Generation ---
+2025-11-22 00:05:13,875 [INFO] Generating prime numbers (this might take a moment)...
+2025-11-22 00:05:13,876 [INFO] Finding p (approx 256 bits)...
+2025-11-22 00:05:13,930 [INFO] Found p.
+2025-11-22 00:05:13,930 [INFO] Finding q (approx 256 bits)...
+2025-11-22 00:05:13,992 [INFO] Found q.
+2025-11-22 00:05:13,992 [INFO] Calculating private exponent d...
+2025-11-22 00:05:13,993 [INFO] Keys generated successfully.
+2025-11-22 00:05:13,993 [INFO] Public Key (e, n): (65537, 50175030014733294508...)
+2025-11-22 00:05:13,993 [INFO] Private Key (d, n): (28527731943924684071..., 50175030014733294508...)
+2025-11-22 00:05:13,994 [INFO] 
+--- Step 2: Encryption / Decryption ---
+2025-11-22 00:05:13,994 [INFO] Original Message: Hello, this is a secret message!
+2025-11-22 00:05:13,994 [INFO] Encrypted (Ciphertext): 28202177657720110976288866951300312075685093938265...
+2025-11-22 00:05:13,996 [INFO] Decrypted Message: Hello, this is a secret message!
+2025-11-22 00:05:13,996 [INFO] SUCCESS: Decrypted message matches original.
+2025-11-22 00:05:13,996 [INFO] 
+--- Step 3: Digital Signature ---
+2025-11-22 00:05:13,997 [INFO] Document to sign: Authorize Payment: $500
+2025-11-22 00:05:13,998 [INFO] Signature generated: 90602672659600899246596227383348684089311276052699...
+2025-11-22 00:05:13,998 [INFO] SUCCESS: Signature verified correctly.
+2025-11-22 00:05:13,999 [INFO] 
+--- Step 4: Tampering Test ---
+2025-11-22 00:05:13,999 [INFO] Tampered Document: Authorize Payment: $50000
+2025-11-22 00:05:14,000 [INFO] SUCCESS: Tampered document rejected.
+2025-11-22 00:05:14,000 [INFO] 
+=== RSA DEMO COMPLETED ===
