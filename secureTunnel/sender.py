@@ -1,6 +1,5 @@
 import socket
 import base64
-import os
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 try:
@@ -17,6 +16,8 @@ except ImportError:
             "  - pycryptodomex (provides 'Cryptodome' namespace)\n\n"
             "Example:\n  py -m pip install pycryptodome"
         ) from e
+
+from key_generator import generate_key_bytes
 
 HOST = '127.0.0.1'
 PORT = 65432 # Connects to the Tunnel
@@ -41,8 +42,8 @@ def start_sender():
 
             public_key = serialization.load_pem_public_key(public_pem)
 
-            # Generate a DES session key (8 bytes) and send it encrypted via RSA
-            des_key = os.urandom(8)
+            # Generate a DES session key (8 bytes) using Collatz-based generator
+            des_key = generate_key_bytes(8)
             enc_key = public_key.encrypt(
                 des_key,
                 padding.OAEP(
@@ -59,7 +60,7 @@ def start_sender():
                 message = input("You: ")
                 if not message:
                     continue
-                iv = os.urandom(8)
+                iv = generate_key_bytes(8)
                 cipher = DES.new(des_key, DES.MODE_CBC, iv)
                 ct = cipher.encrypt(pad(message.encode('utf-8'), 8))
                 payload = iv + ct

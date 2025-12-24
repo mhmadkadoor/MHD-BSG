@@ -25,7 +25,7 @@ This document explains how the `sender`, `unsecureTunnel`, and `receiver` establ
 ### 3. Session Key Exchange (Hybrid Encryption)
 *   **Goal**: Establish a shared symmetric key for fast encryption (DES).
 *   **Action**:
-    1.  **Sender** generates a random **8-byte DES Key** (the Session Key).
+    1.  **Sender** generates an **8-byte DES Key** (the Session Key) using the Collatz-based generator in `key_generator.py` (`generate_key_bytes(8)`).
     2.  **Sender** encrypts this DES Key using the **Receiver's RSA Public Key** (using OAEP padding with SHA-256).
     3.  **Sender** sends the encrypted key with the prefix `KEY:` (e.g., `KEY:<Base64 Encrypted Data>`).
     4.  **Receiver** receives the message, extracts the payload, and decrypts it using its **RSA Private Key**.
@@ -34,7 +34,7 @@ This document explains how the `sender`, `unsecureTunnel`, and `receiver` establ
 ### 4. Secure Messaging
 *   **Action**: User types a message in the Sender terminal.
 *   **Encryption (Sender)**:
-    1.  Generates a random **8-byte IV** (Initialization Vector) for this specific message.
+    1.  Generates an **8-byte IV** (Initialization Vector) for this specific message using the Collatz-based generator (`generate_key_bytes(8)`).
     2.  Pads the message to be a multiple of 8 bytes (DES block size).
     3.  Encrypts the message using **DES-CBC Mode** with the Session Key and IV.
     4.  Concatenates `IV + Ciphertext`.
@@ -48,11 +48,19 @@ This document explains how the `sender`, `unsecureTunnel`, and `receiver` establ
     4.  Unpads the result to get the original plaintext.
     5.  Prints the decrypted message.
 
+### What is an IV (Initialization Vector)?
+An **IV** is a per-message value used by CBC mode.
+
+- **Why it exists**: It prevents identical plaintext messages encrypted with the same key from producing identical ciphertext.
+- **Is it secret?** No. The IV is sent along with the ciphertext so the receiver can decrypt.
+- **In this project**: The IV is the **first 8 bytes** of the `MSG:` payload (`IV + Ciphertext`).
+
 ## Diagram
 
 ```mermaid
 sequenceDiagram
     participant Sender
+    participant KeyGen as key_generator.py
     participant Tunnel
     participant Receiver
 
@@ -61,14 +69,25 @@ sequenceDiagram
     Tunnel->>Receiver: Connect
     Receiver-->>Sender: Send RSA Public Key (PEM)
     
-    Note over Sender: Generate Random DES Key
+    Note over Sender,KeyGen: Generate DES session key (8 bytes)
+    Sender->>KeyGen: generate_key_bytes(8)
+    KeyGen-->>Sender: DES key
     Note over Sender: Encrypt DES Key with RSA Public Key
     Sender->>Receiver: KEY: <Encrypted DES Key>
     Note over Receiver: Decrypt DES Key with RSA Private Key
     
     Note over Sender: User types "Hello"
-    Note over Sender: Encrypt "Hello" with DES Key + IV
+    Note over Sender,KeyGen: Generate per-message IV (8 bytes)
+    Sender->>KeyGen: generate_key_bytes(8)
+    KeyGen-->>Sender: IV
+    Note over Sender: Encrypt "Hello" with DES Key + IV (DES-CBC)
     Sender->>Receiver: MSG: <IV + DES Ciphertext>
     Note over Receiver: Decrypt with DES Key + IV
     Note over Receiver: Print "Hello"
 ```
+
+## Notes / Limitations
+
+- This demonstrates a **hybrid encryption** idea (RSA for key exchange + symmetric cipher for data).
+- **DES is considered weak by modern standards** (small key size). It is used here for learning/demo purposes.
+- The Tunnel can see all traffic (public key, encrypted DES key, encrypted messages) but cannot decrypt without the RSA private key or DES session key.
