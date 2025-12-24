@@ -3,15 +3,15 @@ import base64
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 try:
-    from Crypto.Cipher import DES
+    from Crypto.Cipher import AES
     from Crypto.Util.Padding import pad
 except ImportError:
     try:
-        from Cryptodome.Cipher import DES
+        from Cryptodome.Cipher import AES
         from Cryptodome.Util.Padding import pad
     except ImportError as e:
         raise SystemExit(
-            "DES backend not found. Install one of:\n"
+            "AES backend not found. Install one of:\n"
             "  - pycryptodome (provides 'Crypto' namespace)\n"
             "  - pycryptodomex (provides 'Cryptodome' namespace)\n\n"
             "Example:\n  py -m pip install pycryptodome"
@@ -42,10 +42,10 @@ def start_sender():
 
             public_key = serialization.load_pem_public_key(public_pem)
 
-            # Generate a DES session key (8 bytes) using Collatz-based generator
-            des_key = generate_key_bytes(8)
+            # Generate an AES session key (16 bytes) using Collatz-based generator
+            aes_key = generate_key_bytes(16)
             enc_key = public_key.encrypt(
-                des_key,
+                aes_key,
                 padding.OAEP(
                     mgf=padding.MGF1(algorithm=hashes.SHA256()),
                     algorithm=hashes.SHA256(),
@@ -53,16 +53,16 @@ def start_sender():
                 ),
             )
             s.sendall(b"KEY:" + base64.b64encode(enc_key) + b"\n")
-            print("Sent DES session key (RSA-encrypted).")
+            print("Sent AES session key (RSA-encrypted).")
 
             print("Connected. Type messages to encrypt (Ctrl+C to quit):")
             while True:
                 message = input("You: ")
                 if not message:
                     continue
-                iv = generate_key_bytes(8)
-                cipher = DES.new(des_key, DES.MODE_CBC, iv)
-                ct = cipher.encrypt(pad(message.encode('utf-8'), 8))
+                iv = generate_key_bytes(16)
+                cipher = AES.new(aes_key, AES.MODE_CBC, iv)
+                ct = cipher.encrypt(pad(message.encode('utf-8'), 16))
                 payload = iv + ct
                 s.sendall(b"MSG:" + base64.b64encode(payload) + b"\n")
     except ConnectionRefusedError:

@@ -2,6 +2,12 @@ import datetime
 from typing import Optional
 
 
+# Symmetric crypto sizes (for this project)
+# AES uses a 16-byte block size; common AES keys are 16/24/32 bytes.
+AES_KEY_SIZE_BYTES = 16
+AES_IV_SIZE_BYTES = 16
+
+
 def _default_seed() -> int:
     # Keep the same *methodology* as the original script: seed from time.
     # We use microsecond and a small constant offset like the original.
@@ -37,9 +43,15 @@ def generate_key_bytes(n_bytes: int, seed: Optional[int] = None) -> bytes:
 
     The original `generate_key` stops once the Collatz sequence reaches 1,
     which gives a variable number of bits. For symmetric crypto we often need
-    a fixed size (e.g., 8 bytes for DES keys/IVs). To preserve the same
-    methodology while producing enough bits, we restart the Collatz process
-    with a derived value when the sequence terminates.
+    a fixed size.
+
+    In the AES version of this project:
+    - AES session key: 16 bytes (AES-128)  -> `generate_key_bytes(16)`
+    - AES-CBC IV:      16 bytes (block)    -> `generate_key_bytes(16)`
+
+    To preserve the same Collatz-parity methodology while producing enough
+    bits, we restart the Collatz process with a derived value when the
+    sequence terminates.
     """
     if n_bytes <= 0:
         raise ValueError("n_bytes must be positive")
@@ -74,8 +86,23 @@ def generate_key_bytes(n_bytes: int, seed: Optional[int] = None) -> bytes:
     return out.to_bytes(n_bytes, byteorder="big", signed=False)
 
 
+def generate_aes_key(seed: Optional[int] = None) -> bytes:
+    """Convenience wrapper for AES-128 session key (16 bytes)."""
+    return generate_key_bytes(AES_KEY_SIZE_BYTES, seed=seed)
+
+
+def generate_aes_iv(seed: Optional[int] = None) -> bytes:
+    """Convenience wrapper for AES-CBC IV (16 bytes)."""
+    return generate_key_bytes(AES_IV_SIZE_BYTES, seed=seed)
+
+
 if __name__ == "__main__":
     kegenvalue = _default_seed()
     print(f"Key generation value: {kegenvalue}")
     generated_key = generate_key(kegenvalue)
     print(bin(generated_key))
+
+    aes_key = generate_aes_key()
+    aes_iv = generate_aes_iv()
+    print(f"AES key (len={len(aes_key)}): {aes_key.hex()}")
+    print(f"AES iv  (len={len(aes_iv)}): {aes_iv.hex()}")

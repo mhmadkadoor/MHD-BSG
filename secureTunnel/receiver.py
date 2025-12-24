@@ -3,16 +3,16 @@ import base64
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 try:
-    from Crypto.Cipher import DES
+    from Crypto.Cipher import AES
     from Crypto.Util.Padding import unpad
 except ImportError:
     # Fallback if pycryptodome exposes Cryptodome namespace
     try:
-        from Cryptodome.Cipher import DES
+        from Cryptodome.Cipher import AES
         from Cryptodome.Util.Padding import unpad
     except ImportError as e:
         raise SystemExit(
-            "DES backend not found. Install one of:\n"
+            "AES backend not found. Install one of:\n"
             "  - pycryptodome (provides 'Crypto' namespace)\n"
             "  - pycryptodomex (provides 'Cryptodome' namespace)\n\n"
             "Example:\n  py -m pip install pycryptodome"
@@ -47,7 +47,7 @@ def start_receiver():
                     conn.sendall(public_pem)
 
                     buffer = b""
-                    des_key = None
+                    aes_key = None
                     while True:
                         data = conn.recv(4096)
                         if not data:
@@ -60,12 +60,12 @@ def start_receiver():
                             line, buffer = buffer.split(b"\n", 1)
                             if not line:
                                 continue
-                            # Handle DES key exchange and encrypted messages
+                            # Handle AES key exchange and encrypted messages
                             if line.startswith(b"KEY:"):
                                 try:
                                     enc_key_b64 = line[4:]
                                     enc_key = base64.b64decode(enc_key_b64)
-                                    des_key = private_key.decrypt(
+                                    aes_key = private_key.decrypt(
                                         enc_key,
                                         padding.OAEP(
                                             mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -73,25 +73,25 @@ def start_receiver():
                                             label=None,
                                         ),
                                     )
-                                    if len(des_key) != 8:
-                                        print("Received DES key has invalid length.")
-                                        des_key = None
+                                    if len(aes_key) not in (16, 24, 32):
+                                        print("Received AES key has invalid length.")
+                                        aes_key = None
                                     else:
-                                        print("Receiver: DES session key established.")
+                                        print("Receiver: AES session key established.")
                                 except Exception:
-                                    print("Receiver: Failed to establish DES key.")
+                                    print("Receiver: Failed to establish AES key.")
                                 continue
 
-                            if line.startswith(b"MSG:") and des_key:
+                            if line.startswith(b"MSG:") and aes_key:
                                 try:
                                     payload = base64.b64decode(line[4:])
-                                    iv = payload[:8]
-                                    ct = payload[8:]
-                                    cipher = DES.new(des_key, DES.MODE_CBC, iv)
-                                    pt = unpad(cipher.decrypt(ct), 8)
-                                    print(f"Receiver (DES) decrypted: {pt.decode('utf-8', errors='replace')}")
+                                    iv = payload[:16]
+                                    ct = payload[16:]
+                                    cipher = AES.new(aes_key, AES.MODE_CBC, iv)
+                                    pt = unpad(cipher.decrypt(ct), 16)
+                                    print(f"Receiver (AES) decrypted: {pt.decode('utf-8', errors='replace')}")
                                 except Exception:
-                                    print("Receiver: DES decryption failed.")
+                                    print("Receiver: AES decryption failed.")
                                 continue
 
                             # Fallback: try RSA direct message
