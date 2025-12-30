@@ -81,7 +81,7 @@ def compress_image(
     max_side: int | None = 1000,
     blur_radius: float = 0.6,
     strip_meta: bool = True,
-    jpeg_quality: int = 45,
+    jpeg_quality: int = 75,
     jpeg_subsampling: str = "420",
     jpeg_progressive: bool = False,
     alpha_background: str = "white",
