@@ -1,19 +1,175 @@
 import datetime
-kegenvalue = datetime.datetime.now().microsecond
-print(f"Key generation value: {kegenvalue}")
-def generate_key(value):
-    value = int(value-5)
+import argparse
+from typing import Optional
+
+
+# Symmetric crypto sizes (for this project)
+# AES uses a 16-byte block size; common AES keys are 16/24/32 bytes.
+AES_KEY_SIZE_BYTES = 16
+AES_IV_SIZE_BYTES = 16
+
+
+def _default_seed() -> int:
+    # Keep the same *methodology* as the original script: seed from time.
+    # We use microsecond and a small constant offset like the original.
+    return int(datetime.datetime.now().microsecond)
+
+
+def generate_key(value: int) -> int:
+    """Generate a (variable-length) key integer using Collatz parity.
+
+    This keeps the original methodology:
+    - Start from a time-derived integer (or caller-provided value)
+    - Iterate the Collatz transform
+    - Shift the key and append a bit based on odd/even
+      * odd  -> append 0
+      * even -> append 1
+    """
+    value = int(value - 5)
+    if value <= 1:
+        value = 2
     key = 0
     while value > 1:
         key <<= 1
         if value & 1:
-            # print(f"odd value: {value}")
             value = int((value * 3) + 1)
         else:
             key |= 1
-            # print(f"even value: {value}")
             value = int(value / 2)
     return key
 
-generated_key = generate_key(kegenvalue)
-print(bin(generated_key))
+
+def generate_key_bytes(n_bytes: int, seed: Optional[int] = None) -> bytes:
+    """Generate exactly `n_bytes` using Collatz-parity bits.
+
+    The original `generate_key` stops once the Collatz sequence reaches 1,
+    which gives a variable number of bits. For symmetric crypto we often need
+    a fixed size.
+
+    In the AES version of this project:
+    - AES session key: 16 bytes (AES-128)  -> `generate_key_bytes(16)`
+    - AES-CBC IV:      16 bytes (block)    -> `generate_key_bytes(16)`
+
+    To preserve the same Collatz-parity methodology while producing enough
+    bits, we restart the Collatz process with a derived value when the
+    sequence terminates.
+    """
+    if n_bytes <= 0:
+        raise ValueError("n_bytes must be positive")
+
+    bits_needed = n_bytes * 8
+    seed_value = _default_seed() if seed is None else int(seed)
+    value = int(seed_value - 5)
+    if value <= 1:
+        value = 2
+
+    out = 0
+    bits_out = 0
+
+    while bits_out < bits_needed:
+        # If the Collatz sequence terminated, restart from a derived value.
+        if value <= 1:
+            # Derive a new value using the bits we already produced.
+            # Still Collatz-based: the next bits are produced by Collatz parity.
+            value = ((seed_value ^ (out & 0xFFFFFFFF)) + 2) | 1
+
+        out <<= 1
+        if value & 1:
+            # odd -> append 0
+            value = int((value * 3) + 1)
+        else:
+            # even -> append 1
+            out |= 1
+            value = int(value / 2)
+
+        bits_out += 1
+
+    return out.to_bytes(n_bytes, byteorder="big", signed=False)
+
+
+def generate_aes_key(seed: Optional[int] = None) -> bytes:
+    """Convenience wrapper for AES-128 session key (16 bytes)."""
+    return generate_key_bytes(AES_KEY_SIZE_BYTES, seed=seed)
+
+
+def generate_aes_iv(seed: Optional[int] = None) -> bytes:
+    """Convenience wrapper for AES-CBC IV (16 bytes)."""
+    return generate_key_bytes(AES_IV_SIZE_BYTES, seed=seed)
+
+
+def _positive_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("seed must be an integer") from exc
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("seed must be non-negative")
+    return parsed
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate keys using the project's Collatz-parity method. "
+            "By default it uses a time-derived seed (microsecond)."
+        )
+    )
+    parser.add_argument(
+        "--seed",
+        type=_positive_int,
+        default=None,
+        help=(
+            "Optional deterministic seed (integer). "
+            "If omitted, uses the current time microsecond."
+        ),
+    )
+    parser.add_argument(
+        "--no-aes",
+        action="store_true",
+        help="Do not print the fixed-size AES key/IV outputs.",
+    )
+    parser.add_argument(
+        "--no-collatz-key",
+        action="store_true",
+        help="Do not print the variable-length Collatz key output.",
+    )
+    parser.add_argument(
+        "--bytes",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "Generate exactly N bytes using the Collatz-parity stream and print as hex. "
+            "This is in addition to AES unless --no-aes is set."
+        ),
+    )
+
+    args = parser.parse_args(argv)
+
+    seed_value = _default_seed() if args.seed is None else args.seed
+    print(f"Seed value: {seed_value}")
+
+    if not args.no_collatz_key:
+        generated_key = generate_key(seed_value)
+        bit_length = generated_key.bit_length()
+        bin_str = format(generated_key, "b")
+        print(f"Collatz key (variable length): {bin_str} (bits={bit_length})")
+        print(f"Collatz key hex: {generated_key:x}")
+
+    if args.bytes is not None:
+        if args.bytes <= 0:
+            parser.error("--bytes must be a positive integer")
+        key_bytes = generate_key_bytes(args.bytes, seed=seed_value)
+        print(f"Key bytes (len={len(key_bytes)}): {key_bytes.hex()}")
+
+    if not args.no_aes:
+        aes_key = generate_aes_key(seed=seed_value)
+        aes_iv = generate_aes_iv(seed=seed_value)
+        print(f"AES key (len={len(aes_key)}): {aes_key.hex()}")
+        print(f"AES iv  (len={len(aes_iv)}): {aes_iv.hex()}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
